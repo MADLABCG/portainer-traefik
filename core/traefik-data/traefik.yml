@@ -1,0 +1,39 @@
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+    transport:
+      respondingTimeouts:
+        readTimeout: "6000"
+  websecure:
+    address: :443
+    http:
+      middlewares:
+        - secureHeaders@file
+      tls:
+        certResolver: letsencrypt
+    transport:
+      respondingTimeouts:
+        readTimeout: "6000"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    filename: /configurations/dynamic.yml
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: your.email@provider.com
+      storage: acme.json
+      keyType: EC384
+      httpChallenge:
+        entryPoint: web
